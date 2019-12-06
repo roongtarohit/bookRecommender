@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,35 +8,37 @@
 
     <TextView
         android:text=""
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/txtContent"
-        android:hint="BLANK"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" />
+        android:layout_marginTop="50dp"
+        android:hint="RESULT (ISBN) WOULD BE DISPLAYED HERE"
+        android:gravity="center"
+        android:layout_centerHorizontal="true" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Image"
-        android:id="@+id/button"
         android:layout_below="@id/txtContent"
+        android:text="SELECT IMAGE"
+        android:layout_marginTop="30dp"
+        android:id="@+id/button"
         android:layout_centerHorizontal="true"/>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Process"
+        android:text="SEARCH"
+        android:layout_marginTop="10dp"
         android:id="@+id/process"
         android:layout_below="@id/button"
         android:layout_centerHorizontal="true"/>
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/imgview"
-        android:layout_below="@id/button"
-        android:maxWidth="200dp"
-        android:maxHeight="200dp"/>
+        android:layout_below="@id/process"
+        android:layout_marginTop="30dp"/>
 
-</LinearLayout>
+</RelativeLayout>

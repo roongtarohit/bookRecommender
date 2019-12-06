@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,36 +7,46 @@
     tools:context=".UploadImageActivity">
 
     <TextView
-        android:text=""
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/txtContent1"
-        android:hint="BLANK"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" />
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        android:hint="RESULT THROUGH OCR WOULD BE DISPLAYED HERE"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="70dp"
+        android:textColor="#F00"
+        android:text="It take couple of minutes to fetch the data"
+        android:layout_centerHorizontal="true" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CAMERA"
+        android:text="CLICK AN IMAGE"
         android:id="@+id/button1"
+        android:layout_marginTop="30dp"
         android:layout_below="@id/txtContent1"
         android:layout_centerHorizontal="true"/>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Process"
+        android:text="SEARCH"
         android:id="@+id/process1"
         android:layout_below="@id/button1"
+        android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"/>
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/imgview1"
-        android:layout_below="@id/button1"
-        android:maxWidth="200dp"
-        android:maxHeight="200dp"/>
+        android:layout_below="@id/process1"
+        android:layout_marginTop="30dp" />
 
-</LinearLayout>
+</RelativeLayout>

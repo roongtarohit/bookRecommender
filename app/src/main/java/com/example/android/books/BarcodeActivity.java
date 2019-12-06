@@ -92,7 +92,7 @@ public class BarcodeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Toast.makeText(BarcodeActivity.this,"Process the selected Image", Toast.LENGTH_LONG).show();
+                //Toast.makeText(BarcodeActivity.this,"Process the selected Image", Toast.LENGTH_LONG).show();
 
                 BarcodeDetector detector =
                         new BarcodeDetector.Builder(getApplicationContext())
@@ -113,7 +113,7 @@ public class BarcodeActivity extends AppCompatActivity {
                 //barcodes will be empty - thats my assumption
 
                 if( barcodes.size() == 0) {
-                    //Toast.makeText(BarcodeActivity.this, "Invalid Barcode", Toast.LENGTH_LONG).show();
+                    Toast.makeText(BarcodeActivity.this, "Invalid Barcode", Toast.LENGTH_LONG).show();
                 }
                 else{
                     Barcode thisCode = barcodes.valueAt(0);
@@ -229,13 +229,9 @@ public class BarcodeActivity extends AppCompatActivity {
         bookImage.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
 
         imagePath = url;
+
     }
 
-    /**
-     * Showing Alert Dialog with Settings option
-     * Navigates user to app settings
-     * NOTE: Keep proper title and message depending on your app
-     */
     private void showSettingsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(BarcodeActivity.this);
         builder.setTitle(getString(R.string.dialog_permission_title));
