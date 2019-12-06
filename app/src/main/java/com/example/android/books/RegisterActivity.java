@@ -42,10 +42,11 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this,"password doesn't match", Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(this,sharedPreferences.getString(username.getText().toString(), "Not found"),Toast.LENGTH_SHORT);
+            Toast.makeText(this,sharedPreferences.getString(username.getText().toString(), "Not found"),Toast.LENGTH_SHORT).show();
             if(sharedPreferences.getString(username.getText().toString(),null) == null) {
                 editor.putString(username.getText().toString(),password.getText().toString());
-                Toast.makeText(this,sharedPreferences.getString(username.getText().toString(), "Not found"),Toast.LENGTH_SHORT);
+                editor.commit();
+                Toast.makeText(this,sharedPreferences.getString(username.getText().toString(), "Not found"),Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
                 startActivity(intent);
             }
