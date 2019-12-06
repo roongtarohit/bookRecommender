@@ -67,7 +67,7 @@ public class UploadImageActivity extends AppCompatActivity {
     ImageView myImageView;
     Bitmap myBitmap;
     String imagePath;
-    StringBuilder ans;
+    String ans = " ";
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final int REQUEST_IMAGE = 100;
@@ -104,37 +104,16 @@ public class UploadImageActivity extends AppCompatActivity {
         process.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Toast.makeText(UploadImageActivity.this,"Process the selected Image", Toast.LENGTH_LONG).show();
-
-                BarcodeDetector detector =
-                        new BarcodeDetector.Builder(getApplicationContext())
-                                .build();
-                if(!detector.isOperational()){
-                    txtView.setText("Could not set up the detector!");
-                    return;
-                }
-
-                myBitmap = ((BitmapDrawable)myImageView.getDrawable()).getBitmap();
-
-                //Toast.makeText(BarcodeActivity.this, myBitmap.toString(), Toast.LENGTH_LONG).show();
-
-                Frame frame =  new Frame.Builder().setBitmap(myBitmap).build();
-                SparseArray<Barcode> barcodes = detector.detect(frame);
-
-                //To check whether it is a valid book
-                //barcodes will be empty - thats my assumption
-
-                if( barcodes.size() == 0) {
-                    //Toast.makeText(BarcodeActivity.this, "Invalid Barcode", Toast.LENGTH_LONG).show();
+                if(txtView.getText().toString().equals("NOT FOUND")){
+                    Toast.makeText(UploadImageActivity.this,"Please click again",Toast.LENGTH_LONG).show();
                 }
                 else{
-                    Barcode thisCode = barcodes.valueAt(0);
-                    txtView.setText(thisCode.rawValue);
-
+                    Toast.makeText(UploadImageActivity.this,"Book"+txtView.getText().toString() ,Toast.LENGTH_LONG).show();
                     Intent results = new Intent(UploadImageActivity.this, QueryResultsActivity.class);
-                    results.putExtra("topic", thisCode.rawValue);
-                    results.putExtra("isbn", "isbn=");
+                    results.putExtra("topic", txtView.getText().toString());
+                    results.putExtra("author", "inauthor=");
+                    results.putExtra("title", "intitle=");
+                    //Toast.makeText(BarcodeActivity.this, thisCode.rawValue, Toast.LENGTH_LONG).show();
                     startActivity(results);
                 }
             }
@@ -245,11 +224,12 @@ public class UploadImageActivity extends AppCompatActivity {
     public class UploadTask extends AsyncTask<String, String, String> {
 
 
-        private HttpURLConnection httpConn;
+        /*private HttpURLConnection httpConn;
         private DataOutputStream request;
         private final String boundary =  "*****";
         private final String crlf = "\r\n";
         private final String twoHyphens = "--";
+        */
 
         @Override
         protected String doInBackground(String... strings) {
@@ -264,8 +244,8 @@ public class UploadImageActivity extends AppCompatActivity {
             // WHEN CLICKED FROM CAMERA
             String fileName = imagePath.substring(imagePath.lastIndexOf("/")+1);
             imagePath = "/storage/emulated/0/Android/data/com.example.android.books/cache/camera/" + fileName;
-            //Log.i("CheckPoint", imagePath);
-            //Log.i("CheckPoint", fileName);
+            Log.i("CheckPoint", imagePath);
+            Log.i("CheckPoint", fileName);
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
             int maxBufferSize = 1024 * 1024;
@@ -273,12 +253,12 @@ public class UploadImageActivity extends AppCompatActivity {
                 FileInputStream input = new FileInputStream(new File(imagePath));
 
                 try {
-
-                    // Connect to the web server endpoint
-                    URL serverUrl = new URL("http://sunilsamal.pythonanywhere.com/extract");
+                    URL serverUrl =
+                            new URL("http://sunilsamal.pythonanywhere.com:80/extract");
                     HttpURLConnection urlConnection = (HttpURLConnection) serverUrl.openConnection();
 
                     String boundaryString = "----SomeRandomText";
+                    //String fileUrl = "/Users/sunilsamal/Documents/Fall2019/MobileComputing/MC_final_project/hp2.jpg";
                     String fileUrl = imagePath;
                     File logFileToUpload = new File(fileUrl);
 
@@ -287,19 +267,18 @@ public class UploadImageActivity extends AppCompatActivity {
                     urlConnection.setRequestMethod("POST");
                     urlConnection.addRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
 
+                    Log.i("CheckPoint", "1");
                     OutputStream outputStreamToRequestBody = urlConnection.getOutputStream();
                     BufferedWriter httpRequestBodyWriter =
                             new BufferedWriter(new OutputStreamWriter(outputStreamToRequestBody));
 
-                    // Include value from the myFileDescription text area in the post data
-                    httpRequestBodyWriter.write("\n\n--" + boundaryString + "\n");
-                    httpRequestBodyWriter.write("Content-Disposition: form-data; name=\"file\"");
-                    httpRequestBodyWriter.write("\n\n");
 
+                    Log.i("CheckPoint", "2");
                     // Include the section to describe the file
                     httpRequestBodyWriter.write("\n--" + boundaryString + "\n");
                     httpRequestBodyWriter.write("Content-Disposition: form-data;"
-                            + "name=\"file\";"  +"\""
+                            + "name=\"file\";"
+                            + "filename=\""+ logFileToUpload.getName() +"\""
                             + "\nContent-Type: text/plain\n\n");
                     httpRequestBodyWriter.flush();
 
@@ -311,33 +290,44 @@ public class UploadImageActivity extends AppCompatActivity {
                         outputStreamToRequestBody.write(dataBuffer, 0, bytesRead);
                     }
 
+                    Log.i("CheckPoint", "3");
                     outputStreamToRequestBody.flush();
 
                     // Mark the end of the multipart http request
                     httpRequestBodyWriter.write("\n--" + boundaryString + "--\n");
                     httpRequestBodyWriter.flush();
 
-
-
-                    ans = new StringBuilder();
-                    BufferedReader httpResponseReader =
-                            new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    String lineRead;
-                    while((lineRead = httpResponseReader.readLine()) != null) {
-                        ans.append(lineRead);
-                    }
-
-                    Log.i("CHECKPOINT : ", "Filename : " + fileName);
-                    Log.i("CHECKPOINT : ", "Image path : " + imagePath);
-                    Log.i("CHECKPOINT : ", "Response : " + ans.toString());
-
-                    int serverResponseCode = urlConnection.getResponseCode();
-                    String serverResponseMessage = urlConnection.getResponseMessage();
-                    Log.i("CHECKPOINT : ", "HTTP Response is : " + serverResponseMessage + " : " + serverResponseCode);
-
                     // Close the streams
                     outputStreamToRequestBody.close();
                     httpRequestBodyWriter.close();
+
+                    Log.i("CheckPoint", "4");
+
+                    Log.i("Checkpoint ---",String.valueOf(urlConnection.getResponseCode()));
+                    Log.i("Checkpoint ---",String.valueOf(urlConnection.getResponseMessage()));
+
+                    BufferedReader httpResponseReader =
+                            new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"UTF-8"));
+
+                    String lineRead;
+                    while((lineRead = httpResponseReader.readLine()) != null) {
+                        ans = ans + lineRead;
+                        Log.i("Checkpoint ---","lineRead == "+lineRead+" ==");
+                    }
+
+                    //ans = ans + " ";
+                    Log.i("Checkpoint ---","Ans == "+ ans +" ==");
+
+                    Log.i("CheckPoint", "5");
+                    Log.i("CHECKPOINT : ", "Filename : " + fileName);
+                    Log.i("CHECKPOINT : ", "Image path : " + imagePath);
+
+                    Log.i("CheckPoint", "6");
+                    // Close the streams
+                    outputStreamToRequestBody.close();
+                    httpRequestBodyWriter.close();
+
+                    Log.i("CheckPoint", "7");
 
                     /*URL url = new URL("http://sunilsamal.pythonanywhere.com/extract");
                     Map<String,Object> params = new LinkedHashMap<>();
@@ -453,13 +443,13 @@ public class UploadImageActivity extends AppCompatActivity {
                 }
                 catch (Exception exception)
                 {
-                    Log.d("Exception : ", String.valueOf(exception));
+                    Log.d("Exception 1: ", String.valueOf(exception));
                     publishProgress(String.valueOf(exception));
                 }
             }
             catch (Exception exception)
             {
-                Log.d("Exception : ", String.valueOf(exception));
+                Log.d("Exception 2: ", String.valueOf(exception));
                 publishProgress(String.valueOf(exception));
             }
             return "null";
@@ -474,7 +464,7 @@ public class UploadImageActivity extends AppCompatActivity {
         protected void onPostExecute(String text){
             Toast.makeText(getApplicationContext(), "Done --- 1", Toast.LENGTH_SHORT).show();
             txtView.setText(ans);
-            Toast.makeText(getApplicationContext(), "Done -- 2", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Done --- 2", Toast.LENGTH_SHORT).show();
         }
     }
 }
