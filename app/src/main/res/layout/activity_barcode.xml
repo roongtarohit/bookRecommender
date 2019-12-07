@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient"
     tools:context=".BarcodeActivity">
 
     <TextView
@@ -12,7 +13,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/txtContent"
         android:layout_marginTop="50dp"
-        android:hint="RESULT (ISBN) WOULD BE DISPLAYED HERE"
+        android:hint="Once the image is loaded, click search to find"
         android:gravity="center"
         android:layout_centerHorizontal="true" />
 

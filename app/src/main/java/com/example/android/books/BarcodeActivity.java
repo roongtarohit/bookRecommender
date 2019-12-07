@@ -3,8 +3,6 @@ package com.example.android.books;
 import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -14,10 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -35,17 +30,11 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class BarcodeActivity extends AppCompatActivity {
 
@@ -56,8 +45,8 @@ public class BarcodeActivity extends AppCompatActivity {
     Bitmap myBitmap;
     String imagePath;
 
-    private static final String TAG = MainActivity.class.getSimpleName();
-    public static final int REQUEST_IMAGE = 100;
+    private static final String KEY = MainActivity.class.getSimpleName();
+    public static final int imageRequestCode = 100;
 
     @BindView(R.id.imgview)
     ImageView bookImage;
@@ -74,13 +63,6 @@ public class BarcodeActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        //STATIC IMAGE
-        /*myBitmap = BitmapFactory.decodeResource(
-                getApplicationContext().getResources(),
-                R.drawable.isbn);
-        myImageView.setImageBitmap(myBitmap);*/
-
-
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,8 +74,6 @@ public class BarcodeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                //Toast.makeText(BarcodeActivity.this,"Process the selected Image", Toast.LENGTH_LONG).show();
-
                 BarcodeDetector detector =
                         new BarcodeDetector.Builder(getApplicationContext())
                                 .build();
@@ -104,13 +84,8 @@ public class BarcodeActivity extends AppCompatActivity {
 
                 myBitmap = ((BitmapDrawable)myImageView.getDrawable()).getBitmap();
 
-                //Toast.makeText(BarcodeActivity.this, myBitmap.toString(), Toast.LENGTH_LONG).show();
-
                 Frame frame =  new Frame.Builder().setBitmap(myBitmap).build();
                 SparseArray<Barcode> barcodes = detector.detect(frame);
-
-                //To check whether it is a valid book
-                //barcodes will be empty - thats my assumption
 
                 if( barcodes.size() == 0) {
                     Toast.makeText(BarcodeActivity.this, "Invalid Barcode", Toast.LENGTH_LONG).show();
@@ -119,10 +94,9 @@ public class BarcodeActivity extends AppCompatActivity {
                     Barcode thisCode = barcodes.valueAt(0);
                     txtView.setText(thisCode.rawValue);
 
-                    Intent results = new Intent(BarcodeActivity.this, QueryResultsActivity.class);
+                    Intent results = new Intent(BarcodeActivity.this, ResultsActivity.class);
                     results.putExtra("topic", thisCode.rawValue);
                     results.putExtra("isbn", "isbn=");
-                    //Toast.makeText(BarcodeActivity.this, thisCode.rawValue, Toast.LENGTH_LONG).show();
                     startActivity(results);
                 }
             }
@@ -132,14 +106,13 @@ public class BarcodeActivity extends AppCompatActivity {
 
     //@OnClick({R.id.button})
     void onBarcodeScanRequest() {
-        //Toast.makeText(BarcodeActivity.this, "FINALLY BC!", Toast.LENGTH_LONG).show();
         Dexter.withActivity(this)
                 .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
-                            showImagePickerOptions();
+                            displayOptions();
                         }
 
                         if (report.isAnyPermissionPermanentlyDenied()) {
@@ -154,65 +127,49 @@ public class BarcodeActivity extends AppCompatActivity {
                 }).check();
     }
 
-    private void showImagePickerOptions() {
+    private void displayOptions() {
         ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
             @Override
             public void onTakeCameraSelected() {
-                launchCameraIntent();
+                camera();
             }
 
             @Override
             public void onChooseGallerySelected() {
-                launchGalleryIntent();
+                gallery();
             }
         });
     }
 
-    private void launchCameraIntent() {
-        //Toast.makeText(BarcodeActivity.this, "Camera is selected", Toast.LENGTH_LONG).show();
+    private void camera() {
         Intent intent = new Intent(BarcodeActivity.this, ImagePickerActivity.class);
-        intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
-
-        //Toast.makeText(BarcodeActivity.this, "Camera is selected 2", Toast.LENGTH_LONG).show();
-        // setting aspect ratio
-        intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
-        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
-        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-
-        // setting maximum bitmap width and height
-        intent.putExtra(ImagePickerActivity.INTENT_SET_BITMAP_MAX_WIDTH_HEIGHT, true);
-        intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
-        intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
-
-        //Toast.makeText(BarcodeActivity.this, "Camera is selected 3", Toast.LENGTH_LONG).show();
-        startActivityForResult(intent, REQUEST_IMAGE);
-        //Toast.makeText(BarcodeActivity.this, "Camera is selected 4", Toast.LENGTH_LONG).show();
+        intent.putExtra(ImagePickerActivity.imagePickerOption, ImagePickerActivity.cameraOption);
+        intent.putExtra(ImagePickerActivity.lock, true);
+        intent.putExtra(ImagePickerActivity.widthX, 1); // 16x9, 1x1, 3:4, 3:2
+        intent.putExtra(ImagePickerActivity.heightY, 1);
+        intent.putExtra(ImagePickerActivity.maxDimensionsBitmap, true);
+        intent.putExtra(ImagePickerActivity.maxWidthBitmap, 1000);
+        intent.putExtra(ImagePickerActivity.maxHeightBitmap, 1000);
+        startActivityForResult(intent, imageRequestCode);
     }
 
-    private void launchGalleryIntent() {
-        //Toast.makeText(BarcodeActivity.this, "Gallery is selected 1", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(BarcodeActivity.this, ImagePickerActivity.class);
-        intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_GALLERY_IMAGE);
+    private void gallery() {
 
-        // setting aspect ratio
-        intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
-        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
-        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-        //Toast.makeText(BarcodeActivity.this, "Gallery is selected 2", Toast.LENGTH_LONG).show();
-        startActivityForResult(intent, REQUEST_IMAGE);
-        //Toast.makeText(BarcodeActivity.this, "Gallery is selected 3", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(BarcodeActivity.this, ImagePickerActivity.class);
+        intent.putExtra(ImagePickerActivity.imagePickerOption, ImagePickerActivity.galleryOption);
+        intent.putExtra(ImagePickerActivity.lock, true);
+        intent.putExtra(ImagePickerActivity.widthX, 1);
+        intent.putExtra(ImagePickerActivity.heightY, 1);
+        startActivityForResult(intent, imageRequestCode);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == REQUEST_IMAGE) {
+        if (requestCode == imageRequestCode) {
             if (resultCode == Activity.RESULT_OK) {
                 Uri uri = data.getParcelableExtra("path");
                 try {
-                    // You can update this bitmap to your server
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-
-                    // loading profile image from local cache
                     loadImage(uri.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -222,7 +179,7 @@ public class BarcodeActivity extends AppCompatActivity {
     }
 
     private void loadImage(String url) {
-        Log.d(TAG, "Image cache path: " + url);
+        Log.d(KEY, "Image cache path: " + url);
 
         GlideApp.with(this).load(url)
                 .into(bookImage);
@@ -245,7 +202,6 @@ public class BarcodeActivity extends AppCompatActivity {
 
     }
 
-    // navigating user to app settings
     private void openSettings() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         Uri uri = Uri.fromParts("package", getPackageName(), null);

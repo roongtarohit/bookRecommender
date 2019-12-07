@@ -4,16 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Recycler View to populate list of books from querying the API -->
-    <com.example.android.books.BookRecyclerView
+    <com.example.android.books.KitaabRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:scrollbars="vertical">
-    </com.example.android.books.BookRecyclerView>
+    </com.example.android.books.KitaabRecyclerView>
 
-    <!-- Indeterminate progress bar indicating that the results are currently being fetched -->
     <ProgressBar
         android:id="@+id/progress_spinner"
         style="@style/Widget.AppCompat.ProgressBar"
@@ -21,7 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"/>
 
-    <!-- Empty TextView when there is no data for the query from the API -->
     <TextView
         android:id="@+id/empty_text_view"
         android:layout_width="match_parent"

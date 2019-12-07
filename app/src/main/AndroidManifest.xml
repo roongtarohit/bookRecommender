@@ -13,7 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".SynopsisActivity"></activity>
+        <activity android:name=".RegisterActivity" />
         <activity android:name=".UploadImageActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".BarcodeActivity" />
@@ -25,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".QueryResultsActivity"
+            android:name=".ResultsActivity"
             android:label="Results">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
